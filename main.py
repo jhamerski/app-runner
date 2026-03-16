@@ -1,12 +1,35 @@
+import json
 import os
 
+import boto3
+from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException
 
 load_dotenv()
 
-# Dica: No App Runner, o os.getenv lerá direto das "Environment Variables" do painel
-API_KEY = os.getenv("X_API_KEY")
+
+def get_api_key():
+    # Local: lê do .env
+    local_key = os.getenv("X_API_KEY")
+    if local_key:
+        return local_key
+
+    # Produção: lê do Secrets Manager
+    try:
+        session = boto3.session.Session()
+        client = session.client(
+            service_name="secretsmanager",
+            region_name="us-east-2",
+        )
+        response = client.get_secret_value(SecretId="app-runner")
+        secret = json.loads(response["SecretString"])
+        return secret.get("X_API_KEY")
+    except ClientError:
+        return None
+
+
+API_KEY = get_api_key()
 
 app = FastAPI()
 
