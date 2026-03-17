@@ -25,7 +25,7 @@ def get_api_key():
         response = client.get_secret_value(SecretId="app-runner")
         secret = json.loads(response["SecretString"])
         return secret.get("X_API_KEY")
-    except ClientError:
+    except Exception:
         return None
 
 
@@ -42,7 +42,7 @@ def verify_api_key(x_apikey: str = Header(None)):  # Mudei para None para evitar
 # Endpoint PROTEGIDO
 @app.get("/")
 def root(api_key: str = Depends(verify_api_key)):
-    return {"message": "Olá do App Runner!"}
+    return {"message": "Olá do App Runner!!!"}
 
 
 # Endpoint ABERTO (Para o App Runner validar o serviço)
