@@ -34,8 +34,8 @@ API_KEY = get_api_key()
 app = FastAPI()
 
 
-def verify_api_key(x_apikey: str = Header(None)):  # Mudei para None para evitar erro de Header ausente antes da lógica
-    if x_apikey != API_KEY:
+def verify_api_key(x_apikey: str = Header(None)):
+    if not API_KEY or not x_apikey or x_apikey != API_KEY:
         raise HTTPException(status_code=403, detail="API key inválida")
 
 
